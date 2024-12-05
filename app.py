@@ -1,9 +1,9 @@
 import streamlit as st
-from langchain.llms import OpenAI
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
-from langchain.chains import RetrievalQA
+from langchain_openai.llms import OpenAI  # Updated OpenAI import
+from langchain_core.text_splitter import CharacterTextSplitter  # Updated splitter import
+from langchain_openai.embeddings import OpenAIEmbeddings  # Updated embeddings import
+from langchain_community.vectorstores import Chroma  # Updated Chroma import
+from langchain_core.chains import RetrievalQA  # Updated QA chain import
 
 def generate_response(uploaded_file, openai_api_key, query_text):
     if uploaded_file is not None:
