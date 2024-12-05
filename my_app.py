@@ -6,19 +6,6 @@ import pickle
 with open("churn_model.pkl", "rb") as file:
     model = pickle.load(file)
 
-# Define a function for predictions
-def predict_churn(input_data):
-    """
-    Predict churn based on user input.
-    :param input_data: dict with customer data
-    :return: str ("Churn" or "No Churn")
-    """
-    input_df = pd.DataFrame([input_data])
-    input_df = pd.get_dummies(input_df, drop_first=True)
-    input_df = input_df.reindex(columns=model_features, fill_value=0)
-    prediction = model.predict(input_df)[0]
-    return "Churn" if prediction == 1 else "No Churn"
-
 # Load model features (ensure column alignment)
 model_features = [
     "accountlength", "internationalplan_yes", "voicemailplan_yes",
@@ -28,6 +15,23 @@ model_features = [
     "totalnightcharge", "totalintlminutes", "totalintlcalls",
     "totalintlcharge", "numbercustomerservicecalls"
 ]
+
+# Define a function for predictions
+def predict_churn(input_data):
+    """
+    Predict churn based on user input.
+    :param input_data: dict with customer data
+    :return: str ("Churn" or "No Churn")
+    """
+    # Convert input data to DataFrame
+    input_df = pd.DataFrame([input_data])
+    
+    # Align input columns with the model's expected features
+    input_df = input_df.reindex(columns=model_features, fill_value=0)
+    
+    # Make prediction
+    prediction = model.predict(input_df)[0]
+    return "Churn" if prediction == 1 else "No Churn"
 
 # Streamlit UI
 st.title("Customer Churn Prediction")
@@ -58,4 +62,3 @@ input_data = {
 if st.button("Predict"):
     result = predict_churn(input_data)
     st.write(f"The prediction is: **{result}**")
-
