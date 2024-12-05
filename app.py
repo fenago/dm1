@@ -1,58 +1,52 @@
-import os
-import sys
-
-# Force Python to use pysqlite3 instead of the system sqlite3
-try:
-    from pysqlite3 import dbapi2 as sqlite3
-    sys.modules["sqlite3"] = sqlite3
-except ImportError:
-    pass
-
 import streamlit as st
-from langchain_openai.llms import OpenAI  # Updated OpenAI import
-from langchain_core.text_splitter import CharacterTextSplitter  # Updated splitter import
-from langchain_openai.embeddings import OpenAIEmbeddings  # Updated embeddings import
-from langchain_community.vectorstores import Chroma  # Updated Chroma import
-from langchain_core.chains import RetrievalQA  # Updated QA chain import
+from langchain.llms import OpenAI
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.chains import RetrievalQA
+import pysqlite3
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 def generate_response(uploaded_file, openai_api_key, query_text):
+    # Load document if file is uploaded
     if uploaded_file is not None:
-        # Read and decode uploaded file
         documents = [uploaded_file.read().decode()]
-        # Split document into chunks
+        # Split documents into chunks
         text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
         texts = text_splitter.create_documents(documents)
-        # Generate embeddings
+        # Select embeddings
         embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
-        # Store embeddings in a vector database
+        # Create a vectorstore from documents
+        import chromadb
+
+        chromadb.api.client.SharedSystemClient.clear_system_cache()
         db = Chroma.from_documents(texts, embeddings)
-        # Create a retriever for the vector database
+        # Create retriever interface
         retriever = db.as_retriever()
-        # Use a RetrievalQA chain for question-answering
+        # Create QA chain
         qa = RetrievalQA.from_chain_type(llm=OpenAI(openai_api_key=openai_api_key), chain_type='stuff', retriever=retriever)
         return qa.run(query_text)
 
-# Streamlit app configuration
+# Page title
 st.set_page_config(page_title='🦜🔗 Ask the Doc App')
 st.title('🦜🔗 Ask the Doc App')
 
-# File uploader for text document
-uploaded_file = st.file_uploader('Upload a text document', type='txt')
+# File upload
+uploaded_file = st.file_uploader('Upload an article', type='txt')
+# Query text
+query_text = st.text_input('Enter your question:', placeholder='Please provide a short summary.', disabled=not uploaded_file)
 
-# Input for user's query
-query_text = st.text_input('Enter your question:', placeholder='Type your question here...', disabled=not uploaded_file)
-
-# Form for OpenAI API key input and submission
+# Form input and query
 result = []
 with st.form('myform', clear_on_submit=True):
     openai_api_key = st.text_input('OpenAI API Key', type='password', disabled=not (uploaded_file and query_text))
-    submitted = st.form_submit_button('Submit', disabled=not (uploaded_file and query_text))
+    submitted = st.form_submit_button('Submit', disabled=not(uploaded_file and query_text))
     if submitted and openai_api_key.startswith('sk-'):
         with st.spinner('Calculating...'):
             response = generate_response(uploaded_file, openai_api_key, query_text)
             result.append(response)
-            del openai_api_key  # Remove API key for security
+            del openai_api_key
 
-# Display the result
 if len(result):
-    st.info(result[-1])
+    st.info(response)
