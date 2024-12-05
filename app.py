@@ -1,3 +1,13 @@
+import os
+import sys
+
+# Force Python to use pysqlite3 instead of the system sqlite3
+try:
+    from pysqlite3 import dbapi2 as sqlite3
+    sys.modules["sqlite3"] = sqlite3
+except ImportError:
+    pass
+
 import streamlit as st
 from langchain_openai.llms import OpenAI  # Updated OpenAI import
 from langchain_core.text_splitter import CharacterTextSplitter  # Updated splitter import
