@@ -2,19 +2,11 @@ import streamlit as st
 import pandas as pd
 import pickle
 
-# Load the trained model
+# Load the trained model and features
 with open("churn_model.pkl", "rb") as file:
-    model = pickle.load(file)
-
-# Load model features (ensure column alignment)
-model_features = [
-    "accountlength", "internationalplan_yes", "voicemailplan_yes",
-    "numbervmailmessages", "totaldayminutes", "totaldaycalls",
-    "totaldaycharge", "totaleveminutes", "totalevecalls",
-    "totalevecharge", "totalnightminutes", "totalnightcalls",
-    "totalnightcharge", "totalintlminutes", "totalintlcalls",
-    "totalintlcharge", "numbercustomerservicecalls"
-]
+    data = pickle.load(file)
+    model = data['model']
+    model_features = data['features']
 
 # Define a function for predictions
 def predict_churn(input_data):
