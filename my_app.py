@@ -25,7 +25,7 @@ else:
     ]
 
 # Sidebar with logo and title
-st.sidebar.image("logo.png", use_column_width=True)  # Ensure you have a "logo.png" file in the app directory
+st.sidebar.image("https://lwfiles.mycourse.app/65a58160c1646a4dce257fac-public/a82c64f84b9bb42db4e72d0d673a50d0.png", use_column_width=True)  # Ensure you have a "logo.png" file in the app directory
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Predict Churn", "About"])
 
@@ -95,4 +95,4 @@ with tab1:
 
 # Footer
 st.sidebar.write("---")
-st.sidebar.caption("© 2024 [Your Name](https://yourportfolio.com)")
+st.sidebar.caption("© 2024 [Your Name](https://mdc.edu)")
